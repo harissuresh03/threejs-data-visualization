@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Three.js CSS3D - Data Visualization</title>
+
+	<meta charset="utf-8">
+	<meta name="viewport"
+		content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<!-- Google Identity Services -->
+	<script src="https://accounts.google.com/gsi/client"></script>
+
+	<style>
+		html,
+		body {
+			height: 100%;
+		}
+
+		body {
+			margin: 0;
+			background-color: #000;
+			color: #fff;
+			font-family: Helvetica, Arial, sans-serif;
+			overflow: hidden;
+		}
+
+		a {
+			color: #8ff;
+		}
+
+		/* ============================================================
+		   INFORMATION
+		   ============================================================ */
+
+		#info {
+			position: absolute;
+			top: 20px;
+			width: 100%;
+			text-align: center;
+			z-index: 10;
+			font-size: 15px;
+			pointer-events: none;
+		}
+
+		#info a {
+			pointer-events: auto;
+		}
+
+		/* ============================================================
+		   3D DATA TILE
+		   ============================================================ */
+
+		.element {
+			width: 120px;
+			height: 160px;
+
+			border: 1px solid rgba(255, 255, 255, 0.35);
+			border-radius: 8px;
+
+			box-shadow:
+				0 0 12px rgba(255, 255, 255, 0.25);
+
+			font-family: Helvetica, Arial, sans-serif;
+
+			text-align: center;
+			line-height: normal;
+
+			cursor: default;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: center;
+
+			color: white;
+			font-weight: bold;
+
+			padding: 8px;
+			box-sizing: border-box;
+
+			overflow: hidden;
+
+			backface-visibility: hidden;
+
+			transition:
+				box-shadow 0.2s ease,
+				border-color 0.2s ease;
+		}
+
+		.element:hover {
+			box-shadow:
+				0 0 20px rgba(255, 255, 255, 0.75);
+
+			border-color: rgba(255, 255, 255, 0.9);
+		}
+
+		/* Country code */
+
+		.element .country {
+			align-self: flex-start;
+
+			font-size: 10px;
+			font-weight: bold;
+
+			background: rgba(0, 0, 0, 0.35);
+
+			padding: 3px 6px;
+
+			border-radius: 4px;
+
+			margin-bottom: 4px;
+		}
+
+		/* Photo */
+
+		.element .photo {
+			width: 52px;
+			height: 52px;
+
+			object-fit: cover;
+
+			border-radius: 50%;
+
+			border: 2px solid rgba(255, 255, 255, 0.8);
+
+			margin-bottom: 5px;
+
+			background: rgba(0, 0, 0, 0.3);
+		}
+
+		/* Name */
+
+		.element .name {
+			width: 100%;
+
+			font-size: 13px;
+			line-height: 15px;
+
+			text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+
+			margin-bottom: 3px;
+
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		/* Age */
+
+		.element .age {
+			font-size: 10px;
+
+			opacity: 0.9;
+
+			margin-bottom: 3px;
+		}
+
+		/* Interest */
+
+		.element .interest {
+			font-size: 10px;
+
+			font-weight: normal;
+
+			opacity: 0.95;
+
+			margin-bottom: 5px;
+
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+
+			max-width: 100%;
+		}
+
+		/* Net Worth */
+
+		.element .worth {
+			font-size: 11px;
+
+			background: rgba(0, 0, 0, 0.4);
+
+			padding: 4px 8px;
+
+			border-radius: 20px;
+
+			margin-top: auto;
+
+			white-space: nowrap;
+		}
+
+		/* ============================================================
+		   CONTROLS
+		   ============================================================ */
+
+		#menu {
+			position: absolute;
+
+			bottom: 20px;
+
+			width: 100%;
+
+			text-align: center;
+
+			z-index: 10;
+		}
+
+		button {
+			color: rgba(127, 255, 255, 0.9);
+
+			background: rgba(0, 0, 0, 0.25);
+
+			outline: 1px solid rgba(127, 255, 255, 0.75);
+
+			border: 0;
+
+			padding: 7px 12px;
+
+			margin: 2px;
+
+			cursor: pointer;
+
+			font-size: 12px;
+
+			border-radius: 3px;
+
+			transition:
+				background-color 0.2s ease,
+				color 0.2s ease;
+		}
+
+		button:hover {
+			background-color: rgba(0, 255, 255, 0.35);
+			color: #fff;
+		}
+
+		button:active {
+			color: #000;
+			background-color: rgba(0, 255, 255, 0.75);
+		}
+
+		/* ============================================================
+		   GOOGLE LOGIN
+		   ============================================================ */
+
+		#login-container {
+			position: absolute;
+
+			top: 20px;
+			left: 20px;
+
+			z-index: 20;
+		}
+
+		#login-container button {
+			padding: 10px 20px;
+			font-size: 14px;
+		}
+
+		#status {
+			position: absolute;
+
+			top: 20px;
+			right: 20px;
+
+			z-index: 20;
+
+			color: #8ff;
+
+			font-size: 13px;
+
+			background: rgba(0, 0, 0, 0.55);
+
+			padding: 7px 12px;
+
+			border-radius: 6px;
+
+			max-width: 350px;
+
+			text-align: right;
+		}
+
+		/* ============================================================
+		   NET WORTH LEGEND
+		   ============================================================ */
+
+		#legend {
+			position: absolute;
+
+			bottom: 65px;
+			right: 20px;
+
+			z-index: 10;
+
+			background: rgba(0, 0, 0, 0.55);
+
+			border: 1px solid rgba(255, 255, 255, 0.25);
+
+			padding: 10px;
+
+			border-radius: 6px;
+
+			font-size: 11px;
+		}
+
+		.legend-title {
+			margin-bottom: 7px;
+			font-weight: bold;
+		}
+
+		.legend-item {
+			display: flex;
+			align-items: center;
+			margin: 4px 0;
+		}
+
+		.legend-color {
+			width: 14px;
+			height: 14px;
+			border-radius: 3px;
+			margin-right: 7px;
+		}
+
+		.legend-red {
+			background: #cc3333;
+		}
+
+		.legend-orange {
+			background: #ff9933;
+		}
+
+		.legend-green {
+			background: #33cc33;
+		}
+
+		/* ============================================================
+		   LOADING
+		   ============================================================ */
+
+		#loading {
+			position: absolute;
+
+			top: 50%;
+			left: 50%;
+
+			transform: translate(-50%, -50%);
+
+			z-index: 15;
+
+			font-size: 18px;
+
+			color: #8ff;
+
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- ============================================================
+	     GOOGLE LOGIN
+	     ============================================================ -->
+
+	<div id="login-container">
+		<button id="signin-btn">
+			Sign in with Google
+		</button>
+	</div>
+
+	<div id="status">
+		Not signed in yet.
+	</div>
+
+	<div id="loading">
+		Loading data...
+	</div>
+
+	<!-- ============================================================
+	     INFORMATION
+	     ============================================================ -->
+
+	<div id="info">
+		<a href="https://threejs.org" target="_blank" rel="noopener">
+			three.js
+		</a>
+		&nbsp; CSS3D Data Visualization
+	</div>
+
+	<!-- ============================================================
+	     3D CONTAINER
+	     ============================================================ -->
+
+	<div id="container"></div>
+
+	<!-- ============================================================
+	     NET WORTH LEGEND
+	     ============================================================ -->
+
+	<div id="legend">
+
+		<div class="legend-title">
+			Net Worth
+		</div>
+
+		<div class="legend-item">
+			<div class="legend-color legend-red"></div>
+			<span>Less than $100K</span>
+		</div>
+
+		<div class="legend-item">
+			<div class="legend-color legend-orange"></div>
+			<span>$100K - $200K</span>
+		</div>
+
+		<div class="legend-item">
+			<div class="legend-color legend-green"></div>
+			<span>More than $200K</span>
+		</div>
+
+	</div>
+
+	<!-- ============================================================
+	     LAYOUT MENU
+	     ============================================================ -->
+
+	<div id="menu">
+
+		<button id="table">
+			TABLE
+		</button>
+
+		<button id="sphere">
+			SPHERE
+		</button>
+
+		<button id="helix">
+			DOUBLE HELIX
+		</button>
+
+		<button id="grid">
+			GRID
+		</button>
+
+	</div>
+
+	<!-- ============================================================
+	     THREE.JS IMPORT MAP
+	     ============================================================ -->
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+				"three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+			}
+		}
+	</script>
+
+	<!-- ============================================================
+	     MAIN APPLICATION
+	     ============================================================ -->
+
+	<script type="module">
+
+		import * as THREE from 'three';
+
+		import TWEEN from
+			'three/addons/libs/tween.module.js';
+
+		import {
+			TrackballControls
+		} from
+			'three/addons/controls/TrackballControls.js';
+
+		import {
+			CSS3DRenderer,
+			CSS3DObject
+		} from
+			'three/addons/renderers/CSS3DRenderer.js';
+
+
+		// ============================================================
+		// CONFIGURATION
+		// ============================================================
+
+		const CLIENT_ID =
+			'224875644435-to7akj913ug9vio9fitvp9d0j1go3jrn.apps.googleusercontent.com';
+
+		const SPREADSHEET_ID =
+			'1oBx6CTdIgXllAiES3HGr7IstGbkmcaf57TFmXUf4mxc';
+
+		const RANGE =
+			'Sheet1!A1:F1000';
+
+
+		// ============================================================
+		// THREE.JS VARIABLES
+		// ============================================================
+
+		let camera;
+		let scene;
+		let renderer;
+		let controls;
+
+		const objects = [];
+
+		const targets = {
+			table: [],
+			sphere: [],
+			helix: [],
+			grid: []
+		};
+
+
+		// ============================================================
+		// DOM ELEMENTS
+		// ============================================================
+
+		const statusEl =
+			document.getElementById('status');
+
+		const loadingEl =
+			document.getElementById('loading');
+
+
+		// ============================================================
+		// GOOGLE AUTHENTICATION
+		// ============================================================
+
+		let tokenClient;
+
+
+		function setupAuth() {
+
+			if (
+				typeof google === 'undefined' ||
+				!google.accounts ||
+				!google.accounts.oauth2
+			) {
+
+				statusEl.textContent =
+					'Google authentication failed to load.';
+
+				return;
+			}
+
+
+			tokenClient =
+				google.accounts.oauth2.initTokenClient({
+
+					client_id: CLIENT_ID,
+
+					scope:
+						'https://www.googleapis.com/auth/spreadsheets.readonly',
+
+					callback: async (tokenResponse) => {
+
+						if (tokenResponse.error) {
+
+							statusEl.textContent =
+								'Authentication error: ' +
+								tokenResponse.error;
+
+							console.error(
+								'Authentication error:',
+								tokenResponse
+							);
+
+							return;
+						}
+
+
+						statusEl.textContent =
+							'Signed in. Loading Google Sheet...';
+
+						loadingEl.style.display =
+							'block';
+
+						document
+							.getElementById('login-container')
+							.style.display = 'none';
+
+
+						await fetchDataAndInit(
+							tokenResponse.access_token
+						);
+
+					}
+
+				});
+
+
+			document
+				.getElementById('signin-btn')
+				.addEventListener(
+					'click',
+					() => {
+
+						tokenClient.requestAccessToken({
+							prompt: 'consent'
+						});
+
+					}
+				);
+
+		}
+
+
+		// ============================================================
+		// FETCH GOOGLE SHEET DATA
+		// ============================================================
+
+		async function fetchDataAndInit(accessToken) {
+
+			try {
+
+				const encodedRange =
+					encodeURIComponent(RANGE);
+
+				const url =
+					`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}`;
+
+
+				const response =
+					await fetch(
+						url,
+						{
+							method: 'GET',
+
+							headers: {
+								Authorization:
+									`Bearer ${accessToken}`
+							}
+						}
+					);
+
+
+				if (!response.ok) {
+
+					const errorText =
+						await response.text();
+
+					statusEl.textContent =
+						`Google Sheets error: ${response.status}`;
+
+					console.error(
+						'Google Sheets API error:',
+						errorText
+					);
+
+					loadingEl.style.display =
+						'none';
+
+					return;
+				}
+
+
+				const json =
+					await response.json();
+
+
+				const rows =
+					json.values;
+
+
+				if (
+					!rows ||
+					rows.length < 2
+				) {
+
+					statusEl.textContent =
+						'No data found in Google Sheet.';
+
+					loadingEl.style.display =
+						'none';
+
+					return;
+				}
+
+
+				/*
+					First row is the header:
+
+					Name
+					Photo
+					Age
+					Country
+					Interest
+					Net Worth
+				*/
+
+				const headers =
+					rows[0];
+
+				const dataRows =
+					rows
+						.slice(1)
+						.filter(row =>
+							row.some(
+								value =>
+									String(value || '').trim() !== ''
+							)
+						);
+
+
+				console.log(
+					'Google Sheet headers:',
+					headers
+				);
+
+				console.log(
+					'Loaded records:',
+					dataRows.length
+				);
+
+
+				statusEl.textContent =
+					`Loaded ${dataRows.length} records from Google Sheet.`;
+
+
+				loadingEl.style.display =
+					'none';
+
+
+				init(dataRows);
+
+
+			} catch (error) {
+
+				console.error(
+					'Failed to fetch Google Sheet:',
+					error
+				);
+
+				statusEl.textContent =
+					'Failed to load Google Sheet. Check console.';
+
+				loadingEl.style.display =
+					'none';
+
+			}
+
+		}
+
+
+		// ============================================================
+		// PARSE NET WORTH
+		// ============================================================
+
+		function parseNetWorth(value) {
+
+			if (
+				value === null ||
+				value === undefined
+			) {
+				return 0;
+			}
+
+
+			/*
+				Handles values such as:
+
+				$251,260.80
+				251260.80
+				$60,393.60
+			*/
+
+			const cleaned =
+				String(value)
+					.replace(/[^0-9.-]/g, '');
+
+
+			return parseFloat(cleaned) || 0;
+
+		}
+
+
+		// ============================================================
+		// GET NET WORTH COLOR
+		// ============================================================
+
+		function getNetWorthColor(netWorth) {
+
+			/*
+				RED:
+				< $100,000
+
+				ORANGE:
+				$100,000 - $200,000
+
+				GREEN:
+				> $200,000
+			*/
+
+			if (netWorth < 100000) {
+
+				return '#cc3333';
+
+			} else if (netWorth <= 200000) {
+
+				return '#ff9933';
+
+			} else {
+
+				return '#33cc33';
+
+			}
+
+		}
+
+
+		// ============================================================
+		// FORMAT CURRENCY
+		// ============================================================
+
+		function formatCurrency(value) {
+
+			return '$' +
+				Number(value)
+					.toLocaleString(
+						'en-US',
+						{
+							minimumFractionDigits: 2,
+							maximumFractionDigits: 2
+						}
+					);
+
+		}
+
+
+		// ============================================================
+		// INITIALIZE THREE.JS
+		// ============================================================
+
+		function init(data) {
+
+			camera =
+				new THREE.PerspectiveCamera(
+					40,
+					window.innerWidth /
+						window.innerHeight,
+					1,
+					15000
+				);
+
+
+			camera.position.z =
+				3500;
+
+
+			scene =
+				new THREE.Scene();
+
+
+			// ========================================================
+			// CREATE DATA TILES
+			// ========================================================
+
+			for (
+				let i = 0;
+				i < data.length;
+				i++
+			) {
+
+				const row =
+					data[i];
+
+
+				/*
+					CSV structure:
+
+					0 = Name
+					1 = Photo
+					2 = Age
+					3 = Country
+					4 = Interest
+					5 = Net Worth
+				*/
+
+				const name =
+					String(row[0] || 'Unknown')
+						.trim();
+
+
+				const photo =
+					String(row[1] || '')
+						.trim();
+
+
+				const age =
+					String(row[2] || '')
+						.trim();
+
+
+				const country =
+					String(row[3] || '')
+						.trim();
+
+
+				const interest =
+					String(row[4] || '')
+						.trim();
+
+
+				const netWorth =
+					parseNetWorth(row[5]);
+
+
+				const backgroundColor =
+					getNetWorthColor(
+						netWorth
+					);
+
+
+				// ====================================================
+				// CREATE TILE
+				// ====================================================
+
+				const element =
+					document.createElement('div');
+
+
+				element.className =
+					'element';
+
+
+				element.style.backgroundColor =
+					backgroundColor;
+
+
+				// ====================================================
+				// COUNTRY
+				// ====================================================
+
+				const countryDiv =
+					document.createElement('div');
+
+				countryDiv.className =
+					'country';
+
+				countryDiv.textContent =
+					country;
+
+				element.appendChild(
+					countryDiv
+				);
+
+
+				// ====================================================
+				// PHOTO
+				// ====================================================
+
+				if (photo) {
+
+					const photoImg =
+						document.createElement('img');
+
+					photoImg.className =
+						'photo';
+
+					photoImg.src =
+						photo;
+
+					photoImg.alt =
+						name;
+
+					photoImg.loading =
+						'lazy';
+
+
+					photoImg.onerror =
+						function () {
+
+							this.style.display =
+								'none';
+
+						};
+
+
+					element.appendChild(
+						photoImg
+					);
+
+				}
+
+
+				// ====================================================
+				// NAME
+				// ====================================================
+
+				const nameDiv =
+					document.createElement('div');
+
+				nameDiv.className =
+					'name';
+
+				nameDiv.textContent =
+					name;
+
+				nameDiv.title =
+					name;
+
+				element.appendChild(
+					nameDiv
+				);
+
+
+				// ====================================================
+				// AGE
+				// ====================================================
+
+				const ageDiv =
+					document.createElement('div');
+
+				ageDiv.className =
+					'age';
+
+				ageDiv.textContent =
+					`Age: ${age}`;
+
+				element.appendChild(
+					ageDiv
+				);
+
+
+				// ====================================================
+				// INTEREST
+				// ====================================================
+
+				const interestDiv =
+					document.createElement('div');
+
+				interestDiv.className =
+					'interest';
+
+				interestDiv.textContent =
+					interest;
+
+				interestDiv.title =
+					interest;
+
+				element.appendChild(
+					interestDiv
+				);
+
+
+				// ====================================================
+				// NET WORTH
+				// ====================================================
+
+				const worthDiv =
+					document.createElement('div');
+
+				worthDiv.className =
+					'worth';
+
+				worthDiv.textContent =
+					formatCurrency(
+						netWorth
+					);
+
+				element.appendChild(
+					worthDiv
+				);
+
+
+				// ====================================================
+				// CSS3D OBJECT
+				// ====================================================
+
+				const objectCSS =
+					new CSS3DObject(
+						element
+					);
+
+
+				// Start objects at random positions
+
+				objectCSS.position.x =
+					Math.random() * 5000 - 2500;
+
+				objectCSS.position.y =
+					Math.random() * 5000 - 2500;
+
+				objectCSS.position.z =
+					Math.random() * 5000 - 2500;
+
+
+				scene.add(
+					objectCSS
+				);
+
+
+				objects.push(
+					objectCSS
+				);
+
+			}
+
+
+			const total =
+				objects.length;
+
+
+			console.log(
+				`Created ${total} 3D objects.`
+			);
+
+
+			// ========================================================
+			// TABLE LAYOUT
+			// 20 COLUMNS x 10 ROWS
+			// ========================================================
+
+			const tableColumns =
+				20;
+
+			const tableRows =
+				10;
+
+
+			for (
+				let i = 0;
+				i < total;
+				i++
+			) {
+
+				const row =
+					Math.floor(
+						i / tableColumns
+					);
+
+				const column =
+					i % tableColumns;
+
+
+				const object =
+					new THREE.Object3D();
+
+
+				object.position.x =
+					(
+						column -
+						(tableColumns - 1) / 2
+					) * 135;
+
+
+				object.position.y =
+					-(
+						row -
+						(tableRows - 1) / 2
+					) * 175;
+
+
+				object.position.z =
+					0;
+
+
+				targets.table.push(
+					object
+				);
+
+			}
+
+
+			// ========================================================
+			// SPHERE LAYOUT
+			// ========================================================
+
+			const vector =
+				new THREE.Vector3();
+
+
+			for (
+				let i = 0;
+				i < total;
+				i++
+			) {
+
+				const phi =
+					Math.acos(
+						-1 +
+						(2 * i) /
+						total
+					);
+
+
+				const theta =
+					Math.sqrt(
+						total * Math.PI
+					) * phi;
+
+
+				const object =
+					new THREE.Object3D();
+
+
+				object.position
+					.setFromSphericalCoords(
+						1000,
+						phi,
+						theta
+					);
+
+
+				vector
+					.copy(
+						object.position
+					)
+					.multiplyScalar(2);
+
+
+				object.lookAt(
+					vector
+				);
+
+
+				targets.sphere.push(
+					object
+				);
+
+			}
+
+
+			// ========================================================
+			// DOUBLE HELIX
+			//
+			// 200 records
+			// 100 objects per strand
+			//
+			// Strand 1:
+			// theta
+			//
+			// Strand 2:
+			// theta + PI
+			// ========================================================
+
+			const helixRadius =
+				850;
+
+			const helixSpacing =
+				11;
+
+			const helixTurns =
+				0.22;
+
+
+			const recordsPerStrand =
+				Math.ceil(
+					total / 2
+				);
+
+
+			for (
+				let i = 0;
+				i < total;
+				i++
+			) {
+
+				const strand =
+					i % 2;
+
+
+				const strandIndex =
+					Math.floor(
+						i / 2
+					);
+
+
+				const theta =
+					strandIndex *
+					helixTurns;
+
+
+				const strandOffset =
+					strand === 0
+						? 0
+						: Math.PI;
+
+
+				const finalTheta =
+					theta +
+					strandOffset;
+
+
+				const y =
+					(
+						strandIndex -
+						(recordsPerStrand - 1) / 2
+					) *
+					helixSpacing;
+
+
+				const object =
+					new THREE.Object3D();
+
+
+				object.position.x =
+					Math.cos(
+						finalTheta
+					) *
+					helixRadius;
+
+
+				object.position.y =
+					y;
+
+
+				object.position.z =
+					Math.sin(
+						finalTheta
+					) *
+					helixRadius;
+
+
+				/*
+					Rotate each card so that it faces
+					outward from the centre of the helix.
+				*/
+
+				vector.set(
+					object.position.x * 2,
+					object.position.y,
+					object.position.z * 2
+				);
+
+
+				object.lookAt(
+					vector
+				);
+
+
+				targets.helix.push(
+					object
+				);
+
+			}
+
+
+			// ========================================================
+			// GRID LAYOUT
+			//
+			// 5 COLUMNS
+			// 4 ROWS
+			// 10 LAYERS
+			//
+			// 5 x 4 x 10 = 200
+			// ========================================================
+
+			const gridColumns =
+				5;
+
+			const gridRows =
+				4;
+
+			const gridLayers =
+				10;
+
+
+			for (
+				let i = 0;
+				i < total;
+				i++
+			) {
+
+				const layer =
+					Math.floor(
+						i /
+						(
+							gridColumns *
+							gridRows
+						)
+					);
+
+
+				const positionInsideLayer =
+					i %
+					(
+						gridColumns *
+						gridRows
+					);
+
+
+				const row =
+					Math.floor(
+						positionInsideLayer /
+						gridColumns
+					);
+
+
+				const column =
+					positionInsideLayer %
+					gridColumns;
+
+
+				const object =
+					new THREE.Object3D();
+
+
+				object.position.x =
+					(
+						column -
+						(gridColumns - 1) / 2
+					) *
+					220;
+
+
+				object.position.y =
+					-(
+						row -
+						(gridRows - 1) / 2
+					) *
+					220;
+
+
+				object.position.z =
+					(
+						layer -
+						(gridLayers - 1) / 2
+					) *
+					220;
+
+
+				targets.grid.push(
+					object
+				);
+
+			}
+
+
+			// ========================================================
+			// CSS3D RENDERER
+			// ========================================================
+
+			renderer =
+				new CSS3DRenderer();
+
+
+			renderer.setSize(
+				window.innerWidth,
+				window.innerHeight
+			);
+
+
+			document
+				.getElementById('container')
+				.appendChild(
+					renderer.domElement
+				);
+
+
+			// ========================================================
+			// TRACKBALL CONTROLS
+			// ========================================================
+
+			controls =
+				new TrackballControls(
+					camera,
+					renderer.domElement
+				);
+
+
+			controls.minDistance =
+				500;
+
+			controls.maxDistance =
+				8000;
+
+
+			controls.addEventListener(
+				'change',
+				render
+			);
+
+
+			// ========================================================
+			// BUTTON EVENTS
+			// ========================================================
+
+			document
+				.getElementById('table')
+				.addEventListener(
+					'click',
+					() => {
+
+						transform(
+							targets.table,
+							2000
+						);
+
+					}
+				);
+
+
+			document
+				.getElementById('sphere')
+				.addEventListener(
+					'click',
+					() => {
+
+						transform(
+							targets.sphere,
+							2000
+						);
+
+					}
+				);
+
+
+			document
+				.getElementById('helix')
+				.addEventListener(
+					'click',
+					() => {
+
+						transform(
+							targets.helix,
+							2000
+						);
+
+					}
+				);
+
+
+			document
+				.getElementById('grid')
+				.addEventListener(
+					'click',
+					() => {
+
+						transform(
+							targets.grid,
+							2000
+						);
+
+					}
+				);
+
+
+			// ========================================================
+			// INITIAL LAYOUT = TABLE
+			// ========================================================
+
+			transform(
+				targets.table,
+				2000
+			);
+
+
+			// ========================================================
+			// WINDOW RESIZE
+			// ========================================================
+
+			window.addEventListener(
+				'resize',
+				onWindowResize
+			);
+
+
+			// ========================================================
+			// START ANIMATION
+			// ========================================================
+
+			animate();
+
+		}
+
+
+		// ============================================================
+		// TRANSFORM BETWEEN LAYOUTS
+		// ============================================================
+
+		function transform(
+			targetsArray,
+			duration
+		) {
+
+			TWEEN.removeAll();
+
+
+			for (
+				let i = 0;
+				i < objects.length;
+				i++
+			) {
+
+				const object =
+					objects[i];
+
+
+				const target =
+					targetsArray[i];
+
+
+				if (!target) {
+					continue;
+				}
+
+
+				const tweenDuration =
+					Math.random() *
+					duration +
+					duration;
+
+
+				// Position animation
+
+				new TWEEN.Tween(
+					object.position
+				)
+					.to(
+						{
+							x: target.position.x,
+							y: target.position.y,
+							z: target.position.z
+						},
+						tweenDuration
+					)
+					.easing(
+						TWEEN.Easing.Exponential.InOut
+					)
+					.start();
+
+
+				// Rotation animation
+
+				new TWEEN.Tween(
+					object.rotation
+				)
+					.to(
+						{
+							x: target.rotation.x,
+							y: target.rotation.y,
+							z: target.rotation.z
+						},
+						tweenDuration
+					)
+					.easing(
+						TWEEN.Easing.Exponential.InOut
+					)
+					.start();
+
+			}
+
+
+			new TWEEN.Tween({})
+				.to(
+					{},
+					duration * 2
+				)
+				.onUpdate(
+					render
+				)
+				.start();
+
+		}
+
+
+		// ============================================================
+		// WINDOW RESIZE
+		// ============================================================
+
+		function onWindowResize() {
+
+			camera.aspect =
+				window.innerWidth /
+				window.innerHeight;
+
+
+			camera.updateProjectionMatrix();
+
+
+			renderer.setSize(
+				window.innerWidth,
+				window.innerHeight
+			);
+
+
+			render();
+
+		}
+
+
+		// ============================================================
+		// ANIMATION LOOP
+		// ============================================================
+
+		function animate() {
+
+			requestAnimationFrame(
+				animate
+			);
+
+
+			TWEEN.update();
+
+
+			if (controls) {
+				controls.update();
+			}
+
+		}
+
+
+		// ============================================================
+		// RENDER
+		// ============================================================
+
+		function render() {
+
+			if (
+				renderer &&
+				scene &&
+				camera
+			) {
+
+				renderer.render(
+					scene,
+					camera
+				);
+
+			}
+
+		}
+
+
+		// ============================================================
+		// START APPLICATION
+		// ============================================================
+
+		setupAuth();
+
+
+		console.log(
+			'Application ready.'
+		);
+
+		console.log(
+			'Click "Sign in with Google" to load the Google Sheet.'
+		);
+
+	</script>
+
+</body>
+
+</html>
